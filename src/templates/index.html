@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Playlist Generator</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #121212; color: #fff; text-align: center; padding: 20px 0; }
+        .container { background-color: #282828; padding: 40px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); max-width: 500px; width: 90%; }
+        h1 { color: #1DB954; }
+        .input-group { margin: 20px 0; }
+        input[type="text"] { width: 80%; padding: 10px; border-radius: 5px; border: 1px solid #555; background-color: #333; color: white; font-size: 16px; margin-bottom: 10px; }
+        button { background-color: #1DB954; color: white; border: none; padding: 15px 30px; font-size: 16px; cursor: pointer; border-radius: 50px; transition: all 0.3s ease; font-weight: bold; }
+        button:hover:not(:disabled) { background-color: #1ED760; transform: scale(1.05); }
+        button:disabled { background-color: #555; color: #999; cursor: not-allowed; }
+        #status { margin-top: 20px; font-size: 1.1em; color: #bbb; min-height: 50px; }
+        a { color: #1ED760; text-decoration: none; font-weight: bold; }
+        
+        /* New styles for the results list */
+        #results { margin-top: 30px; text-align: left; max-height: 300px; overflow-y: auto; background-color: #1a1a1a; padding: 15px; border-radius: 8px; }
+        #results h3 { margin-top: 0; color: #1DB954; }
+        #results ul { list-style-type: none; padding-left: 0; }
+        #results li { background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 8px; font-size: 0.95em; }
+        #results li strong { color: #fff; }
+        #results li span { color: #bbb; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mood Playlist Generator 🎶</h1>
+        <p>Let AI create the perfect playlist. Add your preferences below (optional).</p>
+        
+        <div class="input-group">
+            <input type="text" id="language" placeholder="Preferred language (e.g., Hindi)">
+            <input type="text" id="artist" placeholder="Similar to artist (e.g., A.R. Rahman)">
+        </div>
+
+        <button id="generateBtn" onclick="startAnalysis()">Generate Playlist</button>
+        <div id="status">Ready...</div>
+
+        <div id="results" style="display: none;">
+            <h3>Playlist Created!</h3>
+            <ul id="song-list">
+                </ul>
+        </div>
+    </div>
+    <script>
+        function startAnalysis() {
+            const generateBtn = document.getElementById('generateBtn');
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            const songList = document.getElementById('song-list');
+            const language = document.getElementById('language').value;
+            const artist = document.getElementById('artist').value;
+            
+            generateBtn.disabled = true;
+            resultsDiv.style.display = 'none'; // Hide old results
+            songList.innerHTML = ''; // Clear old song list
+            
+            // --- UPDATED TEXT ---
+            statusDiv.innerHTML = "Starting camera... <br> Look for the pop-up window and hold your expression for 30 seconds!";
+
+            const params = new URLSearchParams();
+            if (language) params.append('language', language);
+            if (artist) params.append('artist', artist);
+            
+            fetch(`/generate_playlist?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // --- UPDATED SUCCESS LOGIC ---
+                        statusDiv.innerHTML = `Success! Your <strong>${data.mood}</strong> playlist is ready. <br><a href="${data.playlist_url}" target="_blank">Click here to open it on Spotify!</a>`;
+                        
+                        // Populate the song list
+                        data.songs.forEach(song => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<strong>${song.song}</strong><br><span>${song.artist}</span>`;
+                            songList.appendChild(li);
+                        });
+                        resultsDiv.style.display = 'block'; // Show the results div
+
+                    } else {
+                        statusDiv.innerText = `Error: ${data.error}`;
+                    }
+                })
+                .catch(error => {
+                    statusDiv.innerText = "An unexpected error occurred. Please check the terminal for details.";
+                })
+                .finally(() => {
+                    generateBtn.disabled = false;
+                });
+        }
+    </script>
+</body>
+</html>

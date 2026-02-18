@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Playlist Generator</title>
+    <link href="http://googleusercontent.com/css2-1?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #1DB954, 0 0 10px #1DB954; }
+            50% { box-shadow: 0 0 20px #1ED760, 0 0 30px #1ED760; }
+            100% { box-shadow: 0 0 5px #1DB954, 0 0 10px #1DB954; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(-45deg, #0d1117, #111b21, #16212a, #212c36);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: rgba(22, 33, 42, 0.7);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            width: 90%;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            color: #1DB954;
+            text-shadow: 0 0 10px rgba(29, 185, 84, 0.5);
+            font-weight: 600;
+        }
+
+        p {
+            color: #b3b3b3;
+            font-weight: 300;
+        }
+
+        .input-group {
+            margin: 25px 0;
+        }
+
+        input[type="text"] {
+            width: 80%;
+            padding: 12px 15px;
+            border-radius: 50px;
+            border: 1px solid #555;
+            background-color: #333;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 12px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #1DB954;
+            box-shadow: 0 0 10px rgba(29, 185, 84, 0.5);
+        }
+
+        button {
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 0 5px #1DB954, 0 0 10px #1DB954;
+            animation: glow 2s infinite-steps(1);
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #1ED760;
+            transform: scale(1.05);
+            animation: none;
+        }
+
+        button:disabled {
+            background-color: #555;
+            color: #999;
+            cursor: not-allowed;
+            animation: none;
+            box-shadow: none;
+        }
+
+        #status {
+            margin-top: 25px;
+            font-size: 1.1em;
+            color: #bbb;
+            min-height: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #1ED760;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-top: 10px;
+        }
+
+        a {
+            color: #1ED760;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        #results {
+            margin-top: 30px;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        #results h3 {
+            margin-top: 0;
+            color: #1DB954;
+            font-weight: 600;
+        }
+
+        #results ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        #results li {
+            background-color: rgba(51, 51, 51, 0.5);
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        #results li strong {
+            color: #fff;
+            font-weight: 400;
+        }
+
+        #results li span {
+            color: #b3b3b3;
+            font-size: 0.9em;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span style="margin-right: 10px;">🎶</span>Mood Playlist Generator</h1>
+        <p>Let AI create the perfect playlist. Add your preferences below (optional).</p>
+        
+        <div class="input-group">
+            <input type="text" id="language" placeholder="Preferred language (e.g., Hindi)">
+            <input type="text" id="artist" placeholder="Similar to artist (e.g., A.R. Rahman)">
+        </div>
+
+        <button id="generateBtn" onclick="startAnalysis()">Generate Playlist</button>
+        <div id="status">
+            Ready...
+            <div class="spinner"></div>
+        </div>
+
+        <div id="results" style="display: none;">
+            <h3>Playlist Created!</h3>
+            <ul id="song-list">
+            </ul>
+        </div>
+    </div>
+    <script>
+        function startAnalysis() {
+            const generateBtn = document.getElementById('generateBtn');
+            const statusDiv = document.getElementById('status');
+            const spinner = document.querySelector('.spinner');
+            const resultsDiv = document.getElementById('results');
+            const songList = document.getElementById('song-list');
+            const language = document.getElementById('language').value;
+            const artist = document.getElementById('artist').value;
+            
+            generateBtn.disabled = true;
+            resultsDiv.style.display = 'none'; 
+            songList.innerHTML = ''; 
+            
+            statusDiv.innerHTML = "Starting camera... <br> Look for the pop-up window!";
+            spinner.style.display = 'block';
+
+            const params = new URLSearchParams();
+            if (language) params.append('language', language);
+            if (artist) params.append('artist', artist);
+            
+            fetch(`/generate_playlist?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        statusDiv.innerHTML = `Success! Your <strong>${data.mood}</strong> playlist is ready. <br><a href="${data.playlist_url}" target="_blank">Click here to open it on Spotify!</a>`;
+                        
+                        data.songs.forEach((song, index) => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `<strong>${song.song}</strong><br><span>${song.artist}</span>`;
+                            li.style.animationDelay = `${index * 0.1}s`;
+                            songList.appendChild(li);
+                        });
+                        resultsDiv.style.display = 'block'; 
+
+                    } else {
+                        statusDiv.innerText = `Error: ${data.error}`;
+                    }
+                })
+                .catch(error => {
+                    statusDiv.innerText = "An unexpected error occurred. Please check the terminal for details.";
+                })
+                .finally(() => {
+                    generateBtn.disabled = false;
+                    spinner.style.display = 'none';
+                });
+        }
+    </script>
+</body>
+</html>
